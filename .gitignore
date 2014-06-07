@@ -1,0 +1,11 @@
+# Files to git ignore
+
+# MySql Workbench temporary file
+*.bak
+
+# Vim temporary file
+*.swp
+
+# But not ignore the default pic
+!/public/pic/default.png
+

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR" ng-app="app">
+  <head>
+   <meta charset="utf-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+
+   <title>Servidor</title>
+   <meta name="description" content="O que anda acontecendo por ai?!">
+   <meta name="keywords" content="Conteudo, comentario, social">
+    <meta name="author" content="Rafael Henrique Moreira">
+
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" type="text/css">
+   <link rel="stylesheet" href="css/app.css" type="text/css">
+
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+  </head>
+
+  <body ng-controller="AppController">
+
+  <!--[if lt IE 7]>
+<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+<![endif]-->
+
+
+
+  <!-- Fixed navbar -->
+  <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- This button shows when the navigation colapse -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" ui-sref="home()">HOME</a>
+      </div>
+
+
+
+
+
+
+
+      <div class="navbar-collapse collapse">
+
+
+      <ul class="nav navbar-nav">
+      </ul>
+
+
+
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+          <form ng-show="showSearch" ng-submit="addAlert('Nao implementado ainda')" class="navbar-form">
+            <div class="navbar-form input-group">
+                <span class="input-group-addon btn btn-default glyphicon glyphicon glyphicon-upload readOnly" ng-show="isSearching" disabled="true"></span>
+              <input type="text" class="form-control" focus-me="showSearch">
+            </div>
+          </form>
+          <button ng-hide="showSearch" ng-click="showSearch = true" type="button" class="btn btn-default navbar-btn glyphicon glyphicon-search"></button>
+        </li>
+      </ul>
+
+      <ul ng-hide="showSearch" class="nav navbar-nav navbar-right">
+        <li ng-show="logged">
+          <a class="navbar-link" href="#" ng-click="logout()">
+            LOGOUT
+          </a>
+        </li>
+        <li ng-hide="!facebookReady || logged">
+          <a class="navbar-link" href="#" ng-click="login()">
+            LOGIN
+          </a>
+        </li>
+        <li ng-hide="logged"><img class="hidden-xs hidden-sm" src="pic/default.png"></li>
+        <li ng-show="logged"><img class="hidden-xs hidden-sm" ng-src="{{ user | userpic }}"></li>
+      </ul>
+      </div><!--/.nav-collapse -->
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+  <!-- My main content will be hidden until all content has been loaded -->
+  <div class="container main-container ng-cloak" ng-cloak >
+
+
+
+
+
+    <!-- <div ng-bind="me | json"></div> -->
+
+
+    <div class="view-container" ui-view autoscroll='true'></div>
+
+
+
+
+    {# . #}<br><br>
+    {# .Env.AppId #}<br><br>
+  
+
+  </div> <!-- End of my main content, hidden until all full loaded -->
+  <script>
+    env = {
+      appId: {# .Env.AppId #}
+    }
+  </script>
+  <script src="js/lib/lodash.min.js"></script>
+  <script src="js/lib/jquery-2.1.1.min.js"></script>
+  <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+  <script src="js/lib/angular.min.js"></script>
+  <script src="js/lib/angular-ui-router.min.js"></script>
+  <script src="js/lib/angular-cookies.min.js"></script>
+  <script src="js/lib/restangular.min.js"></script>
+  <script src="js/lib/ui-bootstrap-tpls-0.11.0.min.js"></script>
+  <script src="js/lib/angular-facebook.js"></script>
+
+  <script src="js/app.js"></script>
+  <script src="js/services.js"></script>
+  <script src="js/controllers.js"></script>
+  <script src="js/filters.js"></script>
+  <script src="js/directives.js"></script>
+
+
+  </script>
+  </body>
+</html>
