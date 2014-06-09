@@ -234,12 +234,10 @@ app.run(function ($rootScope, $log, $http, $cookies, Facebook, Restangular) {
 	    Restangular.setDefaultRequestParams({accessToken: response.authResponse.accessToken});
 
 		// Sending this connected user to the turma server
-		Restangular.service('me').post({
-			accessToken: response.authResponse.accessToken,
-			userID: response.authResponse.userID,
-		}).then(function(response) {
-			$log.log("User sent to server, look the response");
-			$log.log(response);
+		Restangular.service('me').post()
+			.then(function(response) {
+				$log.log("User sent to server, look the response");
+				$log.log(response);
 		});
 
 		// Get user in the facebook servers
