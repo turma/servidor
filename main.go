@@ -18,6 +18,8 @@ type Environment struct {
 	DBName     string
 	DBUser     string
 	DBPass     string
+
+	Youtube string
 }
 
 // My Production configs
@@ -30,6 +32,8 @@ var EnvProd = Environment{
 	DBName:     "turmadatabase",
 	DBUser:     "app",
 	DBPass:     "SecretPassword!",
+
+	Youtube: "AIzaSyAd8uyRU5NeutRtfy9bOrYU1slvq5WSb9g",
 }
 
 // My Development configs
@@ -42,6 +46,8 @@ var EnvDev = Environment{
 	DBName:     "turmadatabase",
 	DBUser:     "app",
 	DBPass:     "SecretPassword!",
+
+	Youtube: "AIzaSyAd8uyRU5NeutRtfy9bOrYU1slvq5WSb9g",
 }
 
 // The only one martini instance

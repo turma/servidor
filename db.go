@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"log"
-	"os"
 
 	"github.com/coopernurse/gorp"
 	"github.com/go-martini/martini"
@@ -50,10 +49,12 @@ func init() {
 	dbmap.AddTableWithName(User{}, "user").SetKeys(false, "id")
 	dbmap.AddTableWithName(Link{}, "link").SetKeys(false, "link")
 	dbmap.AddTableWithName(Shared{}, "shared").SetKeys(false, "id")
+	dbmap.AddTableWithName(Photo{}, "photo").SetKeys(false, "id")
 
 	// Adding to local vairable
 	db = &dbmap
 
-	dbmap.TraceOn("[SQL]", log.New(os.Stdout, "[DB]", log.Lmicroseconds))
+	// Disabled for a while
+	//dbmap.TraceOn("[SQL]", log.New(os.Stdout, "[DB]", log.Lmicroseconds))
 
 }

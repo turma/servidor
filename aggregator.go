@@ -39,8 +39,9 @@ func AggregatorHandler(db DB, fb FB, r render.Render) {
 }
 
 var FBFeedParams = facebook.Params{
-	"limit":  50,
-	"fields": "id,name,description,message,link,source,picture,caption,created_time,privacy,type,object_id,likes.fields(id,name,picture)",
+	"limit": 100,
+	// Removed LIKES from the fields: likes.fields(id,name,picture)
+	"fields": "id,name,description,message,link,source,picture,caption,created_time,privacy,type,object_id",
 }
 
 //
@@ -63,13 +64,133 @@ func Aggregator(fb FB, user *User) {
 
 	for _, feed := range fbFeed.Data {
 		if feed.Type == "link" {
-			log.Printf("Feed type:%s, id:%s", feed.Type, feed.Id)
-			InsertLink(fb, user, feed)
+			//log.Printf("Feed type:%s, id:%s", feed.Type, feed.Id)
+			//InsertLink(fb, user, feed)
 		}
-		// if feed.ObjectId != "" {
-		// 	log.Printf("Object_id:%s", feed.ObjectId)
-		// }
+		if feed.ObjectId != "" {
+			//log.Printf("OID Feed type:%s, object_id:%s", feed.Type, feed.ObjectId)
+			if feed.Type == "photo" {
+				InsertPhoto(fb, user, feed)
+				log.Printf("POST: %s", feed.Id)
+			} else if feed.Type == "video" {
+				//InsertVideo(fb, user, feed)
+			}
+		}
+		if feed.ObjectId == "" && (feed.Type == "swf" || feed.Type == "video") {
+			//log.Printf("YOUTUBE VIDEO type:%s, object_id:%s, Link:%s", feed.Type, feed.ObjectId, feed.Link)
+			// Check if Link is from Facebook, and take it there
+		}
 	}
+}
+
+var FBVideoParams = facebook.Params{
+	"fields": "id,from,name,description,embed_html,source,picture,created_time,format",
+}
+
+//
+// This function inserts and/or updates videos
+//
+func InsertVideo(fb FB, user *User, feed FBFeedData) {
+	// Try to get this facebook object
+	res, err := fb.Get("/"+feed.ObjectId, FBVideoParams)
+	if err != nil { // Facebook object_id not exists
+		//log.Printf("Error getting object '%s' from facebook! %s.", feed.ObjectId, err)
+		return
+	}
+
+	var fbVideo FBVideo
+	err = res.Decode(&fbVideo)
+	if err != nil {
+		log.Printf("Error decoding video object '%s'! %s.", feed.ObjectId, err)
+		return
+	}
+
+	log.Printf("Video: %s", fbVideo.Id)
+}
+
+var FBPhotoParams = facebook.Params{
+	// Another image sizes not in use, removed from fields: images
+	"fields": "id,from.fields(id,name,picture),name,height,width,link,source,picture,created_time",
+}
+
+var FBSummaryParams = facebook.Params{
+	"limit":   0, // I don't need the likes information
+	"summary": true,
+}
+
+//
+// This function inserts and/or updates photos
+//
+func InsertPhoto(fb FB, user *User, feed FBFeedData) {
+	// Try to get this facebook object
+	res, err := fb.Get("/"+feed.ObjectId, FBPhotoParams)
+	if err != nil { // Facebook object_id not exists
+		//log.Printf("Error getting object '%s' from facebook! %s.", feed.ObjectId, err)
+		return
+	}
+
+	var fbImage FBImage
+	err = res.Decode(&fbImage)
+	if err != nil {
+		log.Printf("Error decoding image object '%s'! %s.", feed.ObjectId, err)
+		return
+	}
+
+	log.Printf("Photo: %dx%d %s ", fbImage.Width, fbImage.Height, fbImage.Id)
+
+	photoobj, err := db.Get(Photo{}, fbImage.Id)
+	if err != nil {
+		log.Printf("Error getting the photo '%s'. %s", fbImage.Id, err)
+		return
+	}
+
+	if photoobj == nil {
+
+		// Try to get the Like Count of this image
+		res, err := fb.Get("/"+fbImage.Id+"/likes", FBSummaryParams)
+		if err != nil {
+			log.Printf("Error getting photo '%s' likes! %s.", fbImage.Id, err)
+			return
+		}
+
+		var fbLikesSummary FBLikesSummary
+		err = res.Decode(&fbLikesSummary)
+		if err != nil {
+			log.Printf("Error decoding photo '%s' summary! %s.", fbImage.Id, err)
+			return
+		}
+
+		// Extract a time format from the facebook json time format
+		createdTime, err := time.Parse(FBTimeLayout, fbImage.CreatedTime)
+		if err != nil {
+			log.Printf("Error extracting CreatedTime from a photo. %s", err)
+			return
+		}
+
+		photo := &Photo{
+			Id:          fbImage.Id,
+			Likes:       fbLikesSummary.Summary.TotalCount, // NEED TO GET IT YET
+			Name:        fbImage.Name,
+			Height:      fbImage.Height,
+			Width:       fbImage.Width,
+			Link:        fbImage.Link,
+			Source:      fbImage.Source,
+			Picture:     fbImage.Picture,
+			CreatedTime: createdTime,
+			FromId:      fbImage.From.Id,
+			FromName:    fbImage.From.Name,
+			FromPicture: fbImage.From.Picture.Data.Url,
+		}
+
+		err = db.Insert(photo)
+		if err != nil {
+			log.Printf("Error insterting a new photo '%s'! %s.", fbImage.Id, err)
+			return
+		}
+
+		log.Printf("New photo '%s' likes: %d!", photo.Id, photo.Likes)
+	}
+
 }
 
 //
@@ -202,25 +323,84 @@ type FBFeedData struct {
 	Type        string // photo, video, swf
 	ObjectId    string // If exist's, just share if it's accessible
 
-	Likes FBLikes // We are not using it yet
 }
 
 type FBPrivacy struct {
 	Value string
 }
 
-type FBLikes struct {
-	Data []FBLikesData
-}
-
-type FBLikesData struct {
-	Id      string
-	Name    string
-	Picture FBPictureData
-}
-
 type FBShares struct {
 	Shares int
 }
 
-// "status_type": "tagged_in_photo", type="photo", object_id not work...
+type FBImage struct {
+	Id          string // user id _ post id
+	Name        string
+	Height      int
+	Width       int
+	Link        string
+	Source      string // Photo URL
+	Picture     string
+	CreatedTime string
+	From        FBFrom
+
+	// Images []FBImages
+}
+
+// Not in use, we will use de default 720x720 max image
+//
+// type FBImages struct {
+// 	Source string
+// 	Height int
+// 	Width  int
+// }
+
+type FBVideo struct {
+	Id          string // user id _ post id
+	Name        string
+	Description string
+	EmbedHtml   string
+	Source      string // For video player
+	Picture     string
+	CreatedTime string
+
+	Format []FBFormat
+
+	From FBFrom
+}
+
+type FBFormat struct {
+	EmbedHtml string
+	Width     int
+	Height    int
+	Filter    string
+	// 130x130 (real:130x98), 480x480 (real:480x380), native (real:640x480)
+}
+
+type FBFrom struct {
+	Name    string
+	Id      string
+	Picture FBPicture
+}
+
+type FBLikesSummary struct {
+	Summary FBSummary
+}
+
+type FBSummary struct {
+	TotalCount int
+}
+
+//
+// LIKES REMOVED
+//
+
+// type FBLikes struct {
+// 	Data []FBLikesData
+// }
+
+// type FBLikesData struct {
+// 	Id      string
+// 	Name    string
+// 	Picture FBPictureData
+// }

@@ -49,9 +49,24 @@ type Shared struct {
 	CreatedTime time.Time `db:"created_time" json:"created_time"` // DATETIME
 }
 
-type Likes struct {
+type Photo struct {
 	Id          string    `db:"id" json:"id"`                     // *PK VARCHAR(255)
-	Link        string    `db:"link" json:"link"`                 // *FK VARCHAR(255)
-	From        string    `db:"from" json:"from"`                 // *FK VARCHAR(255)
+	Likes       int       `db:"likes" json:"likes"`               // INT Likes
+	Name        string    `db:"name" json:"name"`                 // VARCHAR(255)
+	Height      int       `db:"height" json:"height"`             // INT
+	Width       int       `db:"width" json:"width"`               // INT
+	Link        string    `db:"link" json:"link"`                 // VARCHAR(255)
+	Source      string    `db:"source" json:"source"`             // VARCHAR(255)
+	Picture     string    `db:"picture" json:"picture"`           // VARCHAR(255)
 	CreatedTime time.Time `db:"created_time" json:"created_time"` // DATETIME
+	FromId      string    `db:"from_id" json:"from_id"`           // VARCHAR(255)
+	FromName    string    `db:"from_name" json:"from_name"`       // VARCHAR(255)
+	FromPicture string    `db:"from_picture" json:"from_picture"` // VARCHAR(255)
 }
+
+// type Likes struct {
+// 	Id          string    `db:"id" json:"id"`                     // *PK VARCHAR(255)
+// 	Link        string    `db:"link" json:"link"`                 // *FK VARCHAR(255)
+// 	From        string    `db:"from" json:"from"`                 // *FK VARCHAR(255)
+// 	CreatedTime time.Time `db:"created_time" json:"created_time"` // DATETIME
+// }
