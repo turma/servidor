@@ -198,37 +198,3 @@ func decodeFBUser(fbUser *FBUser) *User {
 
 	return user
 }
-
-var FBUserParams = facebook.Params{
-	"fields": "id,email,name,gender,link,locale,timezone,verified,picture,permissions",
-}
-
-type FBUser struct {
-	Id          string
-	Email       string
-	Name        string
-	Gender      string
-	Link        string
-	Locale      string
-	Timezone    int
-	Verified    bool
-	Picture     FBPicture
-	Permissions FBPermissions
-}
-
-type FBPicture struct {
-	Data FBPictureData
-}
-
-type FBPictureData struct {
-	Url string
-}
-
-type FBPermissions struct {
-	Data []FBPermissionsData
-}
-
-type FBPermissionsData struct {
-	Permission string
-	Status     string
-}

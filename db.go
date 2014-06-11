@@ -50,6 +50,8 @@ func init() {
 	dbmap.AddTableWithName(Link{}, "link").SetKeys(false, "link")
 	dbmap.AddTableWithName(Shared{}, "shared").SetKeys(false, "id")
 	dbmap.AddTableWithName(Photo{}, "photo").SetKeys(false, "id")
+	dbmap.AddTableWithName(Video{}, "video").SetKeys(false, "id")
+	dbmap.AddTableWithName(YouTubeVideo{}, "youtubevideo").SetKeys(false, "id")
 
 	// Adding to local vairable
 	db = &dbmap
