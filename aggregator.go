@@ -18,7 +18,9 @@ func AggregatorHandler(db DB, fb FB, r render.Render) {
 
 	// List of users who shared his contents and
 	// we still have a valid long lived access token
-	query := "select * from user where read_stream_permission = true and token_expires_at >= now()"
+
+	// maybe not needed: read_stream_permission = true and
+	query := "select * from user where token_expires_at >= now()"
 	var users []*User
 	_, err := db.Select(&users, query)
 	if err != nil {
@@ -60,9 +62,9 @@ func Aggregator(fb FB, user *User) {
 	}
 
 	for _, feed := range fbFeed.Data {
-		//log.Printf("POST: %s", feed.Id)
+		log.Printf("POST: %s, Type: ", feed.Id, feed.Type)
 		if feed.Type == "link" {
-			//log.Printf("Feed type:%s, id:%s", feed.Type, feed.Id)
+			log.Printf("Feed type:%s, id:%s", feed.Type, feed.Id)
 
 			// It will insert links that isn't a link to an facebook object
 			if !isFacebookObject.MatchString(feed.Link) {
@@ -71,14 +73,14 @@ func Aggregator(fb FB, user *User) {
 				//
 				// I'm not interested in saving facebook communities and pages
 				//
-				//log.Printf("Facebook object not saved link:%s", feed.Type, feed.Link)
+				log.Printf("Facebook object not saved link:%s", feed.Type, feed.Link)
 			}
 
 		}
 		if feed.ObjectId != "" {
 			// There is an Facebook Object shared in this post
 
-			//log.Printf("OID Feed type:%s, object_id:%s", feed.Type, feed.ObjectId)
+			log.Printf("OID Feed type:%s, object_id:%s", feed.Type, feed.ObjectId)
 			if feed.Type == "photo" {
 				InsertPhoto(fb, user, feed)
 			} else if feed.Type == "video" {
@@ -86,7 +88,7 @@ func Aggregator(fb FB, user *User) {
 			}
 		}
 		if feed.ObjectId == "" && (feed.Type == "swf" || feed.Type == "video") {
-			//log.Printf("YOUTUBE VIDEO type:%s, object_id:%s, Link:%s", feed.Type, feed.ObjectId, feed.Link)
+			log.Printf("YOUTUBE VIDEO type:%s, object_id:%s, Link:%s", feed.Type, feed.ObjectId, feed.Link)
 
 			// If it's an YouTube video, insert it too
 			if isYouTubeVideo.MatchString(feed.Source) {

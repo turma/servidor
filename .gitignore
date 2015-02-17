@@ -9,3 +9,5 @@
 # But not ignore the default pic
 !/public/pic/default.png
 
+# Ignore the compiled project
+servidor

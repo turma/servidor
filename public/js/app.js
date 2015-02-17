@@ -184,7 +184,7 @@ app.run(function ($rootScope, $log, $http, $cookies, Facebook, Restangular) {
 				$rootScope.connect(response);
 			}
 		}, {
-			scope: 'email,user_friends,read_stream', 
+			scope: 'email,user_friends', /* ,read_stream */
 			return_scopes: true
 		});
 	};
